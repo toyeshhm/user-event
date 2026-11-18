@@ -13,11 +13,11 @@ export function getNextCursorPosition(
   direction: -1 | 1,
   inputType?: string,
 ):
-  | {
-    node: Node
-    offset: number
-  }
-  | undefined {
+    | {
+      node: Node
+      offset: number
+    } |
+    undefined {
   // The behavior at text node zero offset is inconsistent.
   // When walking backwards:
   // Firefox always moves to zero offset and jumps over last offset.
@@ -144,6 +144,10 @@ function walkNodes<T extends Node>(
   direction: 'previous' | 'next',
   callback: (node: Node) => node is T,
 ) {
+  // The siblings of the focus area (contenteditable or body) are out of reach.
+  if (isFocusArea(node)) {
+    return undefined
+  }
   for (;;) {
     const sibling = node[`${direction}Sibling`]
     if (sibling) {
@@ -151,17 +155,19 @@ function walkNodes<T extends Node>(
       if (callback(node)) {
         return node
       }
-    } else if (
-      node.parentNode &&
-      (!isElement(node.parentNode) ||
-        (!isContentEditable(node.parentNode) &&
-          node.parentNode !== node.ownerDocument?.body))
-    ) {
+    } else if (node.parentNode && !isFocusArea(node.parentNode)) {
       node = node.parentNode
     } else {
       break
     }
   }
+}
+
+function isFocusArea(node: Node) {
+  return (
+    isElement(node) &&
+    (isContentEditable(node) || node === node.ownerDocument.body)
+  )
 }
 
 function getDescendant(node: Node, direction: 'first' | 'last') {

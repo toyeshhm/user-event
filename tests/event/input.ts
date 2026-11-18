@@ -220,6 +220,36 @@ cases(
   },
 )
 
+cases(
+  'delete at the boundary of a contenteditable with siblings',
+  ({html, inputType}) => {
+    const {element, eventWasFired} = render(html, {
+      focus: './/*[@contenteditable]',
+      selection: {focusOffset: 0},
+    })
+
+    input(setupInstance(), document.activeElement as Element, '', inputType)
+
+    expect(element.innerHTML).toBe(html.slice(5, -6))
+    expect(eventWasFired('beforeinput')).toBe(true)
+    expect(eventWasFired('input')).toBe(false)
+  },
+  {
+    'deleteContentBackward in empty element': {
+      html: `<div>foo<div contenteditable="true"></div>bar</div>`,
+      inputType: 'deleteContentBackward',
+    },
+    'deleteContentForward in empty element': {
+      html: `<div>foo<div contenteditable="true"></div>bar</div>`,
+      inputType: 'deleteContentForward',
+    },
+    'deleteContentBackward before first child': {
+      html: `<div>foo<div contenteditable="true"><button>a</button></div>bar</div>`,
+      inputType: 'deleteContentBackward',
+    },
+  },
+)
+
 test('prevent input on `beforeinput` event', () => {
   const {element, eventWasFired} = render(`<input/>`)
   element.addEventListener(

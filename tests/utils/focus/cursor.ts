@@ -198,6 +198,22 @@ cases<{
       expectedSelector: undefined,
       expectedOffset: undefined,
     },
+    'backwards in empty contenteditable': {
+      html: `foo<span contenteditable></span>baz`,
+      nodeSelector: 'span',
+      offset: 0,
+      direction: -1,
+      expectedSelector: undefined,
+      expectedOffset: undefined,
+    },
+    'forwards in empty contenteditable': {
+      html: `foo<span contenteditable></span>baz`,
+      nodeSelector: 'span',
+      offset: 0,
+      direction: 1,
+      expectedSelector: undefined,
+      expectedOffset: undefined,
+    },
     'over comment': {
       html: `<span>foo</span><!--comment--><span>bar</span>`,
       nodeSelector: 'span[1]/text()',
